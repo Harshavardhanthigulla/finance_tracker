@@ -1,0 +1,139 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// generator client {
+//   provider = "prisma-client-js"
+//   output   = "../generated/prisma"
+// }
+
+// datasource db {
+//   provider = "postgresql"
+//   url      = env("DATABASE_URL")
+// }
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  // role      String   @default("user")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  loans              Loan[]
+  expenses           Expense[]
+  notifications      Notification[]
+  groups             Group[]              @relation("UserGroups")
+  groupexpense       GroupExpense[]
+  expenseparticipant ExpenseParticipant[]
+  GroupMember        GroupMember[]
+}
+
+model Loan {
+  id              String    @id @default(uuid()) //should start with L
+  userId          String
+  lenderName      String
+  principalAmount Float
+  interestRate    Float
+  emiAmount       Float
+  dueDate         DateTime //next emi due date
+  closingDate     DateTime? //total emi closedate not mandatory
+  status          String    @default("active")
+  createdAt       DateTime  @default(now())
+
+  user     User          @relation(fields: [userId], references: [id])
+  payments LoanPayment[]
+}
+
+model LoanPayment {
+  id          String   @id @default(uuid())
+  loanId      String
+  amount      Float
+  paymentDate DateTime
+  createdAt   DateTime @default(now())
+
+  loan Loan @relation(fields: [loanId], references: [id])
+}
+
+model Expense {
+  id              String   @id @default(uuid())
+  userId          String
+  category        String
+  amount          Float
+  type            String
+  description     String?
+  transactionDate DateTime
+  createdAt       DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Group {
+  id        String   @id @default(uuid())
+  groupName String
+  createdBy String
+  createdAt DateTime @default(now())
+
+  members  GroupMember[]
+  expenses GroupExpense[]
+  user     User           @relation("UserGroups", fields: [createdBy], references: [id])
+}
+
+model GroupMember {
+  id      String @id @default(uuid())
+  groupId String
+  userId  String
+
+  group Group @relation(fields: [groupId], references: [id])
+  user  User  @relation(fields: [userId], references: [id])
+}
+
+model GroupExpense {
+  id          String   @id @default(uuid())
+  groupId     String
+  paidBy      String
+  amount      Float
+  description String?
+  createdAt   DateTime @default(now())
+
+  group        Group                @relation(fields: [groupId], references: [id])
+  participants ExpenseParticipant[]
+  user         User                 @relation(fields: [paidBy], references: [id])
+}
+
+model ExpenseParticipant {
+  id             String @id @default(uuid())
+  groupExpenseId String
+  userId         String
+  share          Float
+
+  groupExpense GroupExpense @relation(fields: [groupExpenseId], references: [id])
+  user         User         @relation(fields: [userId], references: [id])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  message   String
+  status    String   @default("pending")
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Test{
+  id String @id @default(uuid())
+}
