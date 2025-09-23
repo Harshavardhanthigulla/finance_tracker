@@ -1,8 +1,33 @@
 {
-  "devDependencies": {
-    "prisma": "^6.16.1"
+  "name": "finance-tracker",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Harshavardhanthigulla/finance_tracker.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "bugs": {
+    "url": "https://github.com/Harshavardhanthigulla/finance_tracker/issues"
+  },
+  "homepage": "https://github.com/Harshavardhanthigulla/finance_tracker#readme",
   "dependencies": {
-    "@prisma/client": "^6.16.1"
+    "@prisma/client": "^6.16.1",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.2",
+    "@types/express": "^5.0.3",
+    "prisma": "^6.16.1",
+    "ts-node": "^10.9.2",
+    "nodemon": "^3.1.10",
+    "@types/node": "^24.4.0"
   }
 }
