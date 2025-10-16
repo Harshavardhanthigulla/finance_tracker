@@ -1,16 +1,19 @@
-import 'dotenv/config'
+import 'dotenv/config';
 import express from "express";
-import { clerkMiddleware, clerkClient, requireAuth, getAuth } from '@clerk/express'
 import { PrismaClient } from "@prisma/client";
+import { clerkMiddleware, clerkClient, requireAuth, getAuth } from "@clerk/express";
+import clerkWebhook from "./webhooks/clerkWebhook.js";
 
+export const prisma = new PrismaClient();
 const app = express();
-const prisma = new PrismaClient();
-const PORT = process.env.PORT || 8000;
 
 app.use(express.json());
 
 // Clerk middleware should come before routes
 app.use(clerkMiddleware());
+
+// Webhook route
+app.use(clerkWebhook);
 
 // Public route
 app.get("/", (req, res) => {
@@ -23,23 +26,16 @@ app.get("/users", async (req, res) => {
   res.json(users);
 });
 
-
 // Protected route
 app.get("/protected", requireAuth(), async (req, res) => {
-  // Use `getAuth()` to get the user's `userId`
   const { userId } = getAuth(req);
 
   if (!userId) {
     return res.status(401).json({ error: "Unauthorized" });
   }
 
-  // Use Clerk’s backend SDK to fetch the user
   const user = await clerkClient.users.getUser(userId);
-
-  return res.json({ user });
+  res.json({ user });
 });
 
-// Start server
-app.listen(PORT, () => {
-  console.log(`✅ Server running at http://localhost:${PORT}`);
-});
+export default app;
